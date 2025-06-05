@@ -21,6 +21,7 @@ int totalFuncionarios = 0;
 void limparBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    (numeric_limits<streamsize>::max(), '\n');
 }
 
 string paraMinusculo(string texto) {
@@ -227,15 +228,14 @@ void buscarFuncionario() {
         } else if (tipoBusca == 3) {
             return;
         } else if (tipoBusca == 4) {
-            return; // volta ao login
+            return;
         } else {
             cout << "Opcao invalida!" << endl;
         }
     }
 }
 
-void tarefas()
-{
+void tarefas() {
     int index;
     cout << "Digite o nome do funcionario: ";
     string busca;
@@ -251,54 +251,88 @@ void tarefas()
 
     if (!encontrou) {
         cout << "Nenhum funcionario encontrado.\n";
-    }else 
-    {
+    } else {
         cout << "Digite a nova tarefa do funcionario: ";
         cin.ignore();
-        string newTarefa;
         getline(cin, funcionarios[index].tarefa);
-
         salvarFuncionarios();
-
-        cout << funcionarios[index].tarefa;
+        cout << "Tarefa atribuida com sucesso!\n";
     }
 }
 
+void verificarTarefaFuncionarioLogado(const string& nomeUsuario) {
+    for (int i = 0; i < totalFuncionarios; ++i) {
+        if (funcionarios[i].ativo && funcionarios[i].nome == nomeUsuario) {
+            cout << "\nSua tarefa atribuida: " << funcionarios[i].tarefa << "\n";
+            return;
+        }
+    }
+    cout << "Funcionario nao encontrado ou inativo.\n";
+}
+
 int main() {
+    carregarFuncionarios();
+
     while (true) {
-        carregarFuncionarios();
         TipoUsuario tipoUsuario = login();
         if (tipoUsuario == INVALIDO) continue;
 
-        bool continuar = true;
-        while (continuar) {
-            cout << "\n====== MENU DE OPCOES ======" << endl;
-            cout << "1. Listar Funcionarios" << endl;
-            cout << "2. Buscar Funcionario" << endl;
+        string usuarioLogado;
 
-            if (tipoUsuario == ADMINISTRADOR) {
-                cout << "3. Cadastrar Funcionario" << endl;
-                cout << "4. Editar Funcionario" << endl;
-                cout << "5. Remover Funcionario" << endl;
-                cout << "6. tarefas" << endl;
-                cout << "7. Voltar ao Login" << endl;
-                cout << "8. Sair" << endl;
-            } else {
-                cout << "3. Voltar ao Login" << endl;
-                cout << "4. Sair" << endl;
+        if (tipoUsuario == FUNCIONARIO) {
+            cout << "Digite novamente seu nome de usuario para confirmar: ";
+            cin >> usuarioLogado;
+
+            bool continuarFuncionario = true;
+            while (continuarFuncionario) {
+                cout << "\n===== MENU FUNCIONARIO =====\n";
+                cout << "1. Ver tarefa atribuida\n";
+                cout << "2. Listar funcionarios\n";
+                cout << "3. Buscar funcionario\n";
+                cout << "4. Voltar ao login\n";
+                cout << "5. Sair\n";
+                cout << "Escolha: ";
+                int opcao;
+                cin >> opcao;
+
+                if (cin.fail()) {
+                    limparBuffer();
+                    cout << "Entrada invalida!\n";
+                    continue;
+                }
+
+                switch (opcao) {
+                    case 1: verificarTarefaFuncionarioLogado(usuarioLogado); break;
+                    case 2: listarFuncionarios(); break;
+                    case 3: buscarFuncionario(); break;
+                    case 4: continuarFuncionario = false; break;
+                    case 5: return 0;
+                    default: cout << "Opcao invalida!\n";
+                }
             }
 
-            cout << "Escolha: ";
-            int opcao;
-            cin >> opcao;
+        } else if (tipoUsuario == ADMINISTRADOR) {
+            bool continuarAdmin = true;
+            while (continuarAdmin) {
+                cout << "\n====== MENU ADMINISTRADOR ======\n";
+                cout << "1. Listar Funcionarios\n";
+                cout << "2. Buscar Funcionario\n";
+                cout << "3. Cadastrar Funcionario\n";
+                cout << "4. Editar Funcionario\n";
+                cout << "5. Remover Funcionario\n";
+                cout << "6. Atribuir Tarefa\n";
+                cout << "7. Voltar ao Login\n";
+                cout << "8. Sair\n";
+                cout << "Escolha: ";
+                int opcao;
+                cin >> opcao;
 
-            if (cin.fail()) {
-                limparBuffer();
-                cout << "Entrada invalida!" << endl;
-                continue;
-            }
+                if (cin.fail()) {
+                    limparBuffer();
+                    cout << "Entrada invalida!\n";
+                    continue;
+                }
 
-            if (tipoUsuario == ADMINISTRADOR) {
                 switch (opcao) {
                     case 1: listarFuncionarios(); break;
                     case 2: buscarFuncionario(); break;
@@ -306,17 +340,9 @@ int main() {
                     case 4: editarFuncionario(); break;
                     case 5: removerFuncionario(); break;
                     case 6: tarefas(); break;
-                    case 7: continuar = false; break;
-                    case 8: cout << "Saindo..." << endl; return 0;
-                    default: cout << "Opcao invalida!" << endl;
-                }
-            } else {
-                switch (opcao) {
-                    case 1: listarFuncionarios(); break;
-                    case 2: buscarFuncionario(); break;
-                    case 3: continuar = false; break;
-                    case 4: cout << "Saindo..." << endl; return 0;
-                    default: cout << "Opcao invalida!" << endl;
+                    case 7: continuarAdmin = false; break;
+                    case 8: return 0;
+                    default: cout << "Opcao invalida!\n";
                 }
             }
         }
