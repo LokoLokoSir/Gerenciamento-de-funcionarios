@@ -4,6 +4,7 @@
 #include <sstream>
 #include <limits>
 #include <algorithm>
+#include "sqlite3.h" // Desgraça da biblioteca SQLite3, que deu mais dor de cabeça do que jogar lol
 using namespace std;
 
 struct Funcionario {
