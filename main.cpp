@@ -14,7 +14,7 @@ struct Funcionario {
     string senha;
     string cpf;
     string cargo;
-    double salario;
+    string salario;
     bool ativo = true;
 };
 
@@ -36,6 +36,7 @@ Funcionario funcionarios[MAX_FUNCIONARIOS];
 Tarefa tarefas[MAX_TAREFAS];
 int totalFuncionarios = 0;
 int totalTarefas = 0;
+int iFuncionarioLogin;
 
 enum TipoUsuario { INVALIDO, ADMINISTRADOR, FUNCIONARIO };
 
@@ -67,6 +68,7 @@ void salvarFuncionarios() {
                 << funcionarios[i].senha << '|'
                 << funcionarios[i].cpf << '|'
                 << funcionarios[i].cargo << '|'
+                << funcionarios[i].salario << '|'
                 << funcionarios[i].ativo << '\n';
     }
     arquivo.close();
@@ -110,6 +112,9 @@ void carregarFuncionarios() {
 
         getline(ss, parte, '|');
         f.cargo = parte;
+
+        getline(ss, parte, '|');
+        f.salario = parte;
 
         getline(ss, parte, '|');
         f.ativo = (parte == "1");
@@ -164,6 +169,7 @@ TipoUsuario login() {
 
     for (int i = 0; i < totalFuncionarios; ++i) {
         if (funcionarios[i].ativo && funcionarios[i].nome == usuario && funcionarios[i].senha == senha) {
+            iFuncionarioLogin = i;
             return FUNCIONARIO;
         }
     }
@@ -196,6 +202,9 @@ void cadastrarFuncionario() {
     cout << "Cargo do funcionario: ";
     getline(cin, funcionarios[totalFuncionarios].cargo);
 
+    cout << "Salario do funcionario: ";
+    getline(cin, funcionarios[totalFuncionarios].salario);
+
     funcionarios[totalFuncionarios].id = totalFuncionarios + 1;
     funcionarios[totalFuncionarios].ativo = true;
 
@@ -206,16 +215,34 @@ void cadastrarFuncionario() {
 
 void listarFuncionarios() {
     cout << "\n=== LISTA DE FUNCIONARIOS ===" << endl;
-    cout << left << setw(5) << "ID" << setw(20) << "NOME" << setw(15) << "CPF" << setw(20) << "CARGO" << endl;
-    cout << string(60, '-') << endl;
+    cout << left << setw(5) << "ID" << setw(20) << "NOME" << setw(15) << "CPF" << setw(20) << "CARGO" << setw(20) << "SALARIO" << endl;
+    cout << string(70, '-') << endl;
     
     for (int i = 0; i < totalFuncionarios; ++i) {
         if (funcionarios[i].ativo) {
             cout << left << setw(5) << funcionarios[i].id 
                  << setw(20) << funcionarios[i].nome 
                  << setw(15) << funcionarios[i].cpf 
-                 << setw(20) << funcionarios[i].cargo << endl;
+                 << setw(20) << funcionarios[i].cargo
+                 << setw(20) << funcionarios[i].salario << endl;
         }
+    }
+    cout << "\nPressione Enter para continuar...";
+    limparBuffer();
+    cin.get();
+}
+
+void verFuncionario() {
+    cout << "\n=== SUA FICHA ===" << endl;
+    cout << left << setw(5) << "ID" << setw(20) << "NOME" << setw(15) << "CPF" << setw(20) << "CARGO" << setw(20) << "SALARIO" << endl;
+    cout << string(70, '-') << endl;
+
+    if (funcionarios[iFuncionarioLogin].ativo) {
+        cout << left << setw(5) << funcionarios[iFuncionarioLogin].id 
+            << setw(20) << funcionarios[iFuncionarioLogin].nome 
+            << setw(15) << funcionarios[iFuncionarioLogin].cpf 
+            << setw(20) << funcionarios[iFuncionarioLogin].cargo
+            << setw(20) << funcionarios[iFuncionarioLogin].salario << endl;
     }
     cout << "\nPressione Enter para continuar...";
     limparBuffer();
@@ -246,6 +273,9 @@ void editarFuncionario() {
 
     cout << "Novo cargo: ";
     getline(cin, funcionarios[index].cargo);
+
+    cout << "Novo salario: ";
+    getline(cin, funcionarios[index].salario);
 
     cout << "Funcionario atualizado!" << endl;
     salvarFuncionarios();
@@ -287,6 +317,7 @@ void buscarFuncionario() {
                 cout << "Nome: " << funcionarios[index].nome << endl;
                 cout << "CPF: " << funcionarios[index].cpf << endl;
                 cout << "Cargo: " << funcionarios[index].cargo << endl;
+                cout << "Salario: " << funcionarios[index].salario << endl;
             } else {
                 cout << "Funcionario nao encontrado." << endl;
             }
@@ -304,6 +335,7 @@ void buscarFuncionario() {
                     cout << "Nome: " << funcionarios[i].nome << endl;
                     cout << "CPF: " << funcionarios[i].cpf << endl;
                     cout << "Cargo: " << funcionarios[i].cargo << endl;
+                    cout << "Salario: " << funcionarios[i].salario << endl;
                     cout << "--------------------------" << endl;
                     encontrou = true;
                 }
@@ -455,24 +487,6 @@ void marcarTarefaConcluida(const string& nomeUsuario) {
     }
 }
 
-void verFuncionarios() {
-    cout << "\n=== LISTA DE FUNCIONARIOS ===" << endl;
-    cout << left << setw(5) << "ID" << setw(20) << "NOME" << setw(15) << "CPF" << setw(20) << "CARGO" << endl;
-    cout << string(60, '-') << endl;
-
-    for (int i = 0; i < totalFuncionarios; ++i) {
-        if (funcionarios[i].ativo) {
-            cout << left << setw(5) << funcionarios[i].id 
-                 << setw(20) << funcionarios[i].nome 
-                 << setw(15) << funcionarios[i].cpf 
-                 << setw(20) << funcionarios[i].cargo << endl;
-        }
-    }
-    cout << "\nPressione Enter para continuar...";
-    limparBuffer();
-    cin.get();
-}
-
 int main() {
     carregarFuncionarios();
     carregarTarefas();
@@ -492,10 +506,9 @@ int main() {
                 cout << "\n===== MENU FUNCIONARIO =====\n";
                 cout << "1. Ver minhas tarefas\n";
                 cout << "2. Marcar tarefa como concluida\n";
-                cout << "3. Ver funcionarios\n";
-                cout << "4. Buscar funcionario\n";
-                cout << "5. Voltar ao login\n";
-                cout << "6. Sair\n";
+                cout << "3. Ver sua ficha de funcionario\n";
+                cout << "4. Voltar ao login\n";
+                cout << "5. Sair\n";
                 cout << "Escolha: ";
                 int opcao;
                 cin >> opcao;
@@ -509,10 +522,9 @@ int main() {
                 switch (opcao) {
                     case 1: verificarTarefasFuncionario(usuarioLogado); break;
                     case 2: marcarTarefaConcluida(usuarioLogado); break;
-                    case 3: verFuncionarios(); break;
-                    case 4: buscarFuncionario(); break;
-                    case 5: continuarFuncionario = false; break;
-                    case 6: return 0;
+                    case 3: verFuncionario(); break;
+                    case 4: continuarFuncionario = false; break;
+                    case 5: return 0;
                     default: cout << "Opcao invalida!\n";
                 }
             }
